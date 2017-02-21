@@ -288,6 +288,21 @@ body{
     background-repeat: no-repeat;
 }
 
+.mask_black{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    filter: alpha(opacity = 75);
+    -moz-opacity: .75;
+    -khtml-opacity: .75;
+    opacity: .75;
+    background-color: #000;
+    z-index: 9998;
+    display: none;
+}
+
 .follow_wechat{
     display: none;
     text-align: center;
