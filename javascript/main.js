@@ -12,6 +12,7 @@ $(function(){
     var firstImg,secondImg;          //选中图片
     var countTimes;
     var times = 0;
+    var gameFinish = false;
 
     initiation();    //初始化页面
     countDownTime();       //开始倒计时
@@ -69,8 +70,8 @@ $(function(){
                 "top":0
             };
             $(".move_Img").click(function(){          //图片块点击事件
-                clickCount++;
                 var flag=0;
+                clickCount++;              
                 imgCell.each(function(){                 //判断是否有图片块处于动画中
                     if($(this).is(":animated")){
                         flag=1;
@@ -80,7 +81,6 @@ $(function(){
                 if(flag){                      //如果有元素处于动画中，禁止点击事件
                     console.log("add");
                     clickCount--;
-
                 }else{
                     $(this).addClass("current");
                     if(clickCount%2==0){                //点击第二张图片时互换两张图片的位置
@@ -129,7 +129,7 @@ $(function(){
         var flag=1;
         imgCell.each(function(){
             $(this).removeClass("current");
-            if($(this).attr("shuffle-id") == $(this).attr("data-id")){
+            if($(this).attr("shuffle-id") === $(this).attr("data-id")){
 
             }else{
                 flag=0;
@@ -137,15 +137,14 @@ $(function(){
 
         });
         if(flag){           //如果拼图完成
-            countTimeStop();         //计时结束
+            gameFinish=true;
             imgCell.hide();           //拼图隐藏
             $(".game_box").css("background-image","url("+image_src+")");           //显示原图
             $(".success_mask").show();          //成功蒙版显示
             $(".mask_black").show();
-            console.log($(".seconds").html()+ $(".million_seconds").html());
             $(".check_range").addClass("check_range_available");
         }else{
-            //alert("失败！");
+            
         }
     }
 
@@ -159,53 +158,48 @@ $(function(){
         $(".check_range").removeClass("check_range_available");
     }
 
+    var time=10;
 
-    function countDownTime(){               //10秒倒计时
-        var time=10;
-        var count=setInterval(function(){
+    function countDownTime(){               //10秒倒计时        
+        $(".time_message span").text(time); 
+        if(time==0){
+            $(".mask_black").show();
+            $(".start_game_word").show();
+            setTimeout(function(){
+                $(".start_game_word").text("Go!");
+            },1000);
+            setTimeout(function(){
+                $(".mask_black").hide();
+                $(".start_game_word").hide();
+                NineModule.init();            //进入拼图
+                $(".restart_button").show();
+            },2000);
+
+        }else{
             time--;
-            $(".time_message span").text(time);
-            if(time==0){
-                clearInterval(count);
-                $(".mask_black").show();
-                $(".start_game_word").show();
-                setTimeout(function(){
-                    $(".start_game_word").text("Go!");
-                },1000);
-                setTimeout(function(){
-                    $(".mask_black").hide();
-                    $(".start_game_word").hide();
-                    NineModule.init();            //进入拼图
-                    $(".restart_button").show();
-                },2000);
-
-            }else{
-
-            }
-        },1000);
+            setTimeout(countDownTime,1000);          
+        }        
     }
 
-    function countTimeStart(){        //拼图用时计时函数
-        times=0;
-        countTimes = setInterval(function() {
-            times ++;
-            var ms = Math.floor(times / 100).toString();
+    function countTimeStart(){        //拼图用时计时函数        
+        times ++;
+        var ms = Math.floor(times / 100).toString();
 
-            if(ms.length <= 1) {
-                ms = "0" + ms;
-            }
-            var hm = Math.floor(times % 100).toString();
-            if(hm.length <= 1) {
-                hm = "0"+hm;
-            }
-            $(".seconds").html(ms+".");
-            $(".million_seconds").html(hm);
-        }, 10);
-    }
-
-    function countTimeStop(){                 //拼图用时计时结束函数
-        clearInterval(countTimes);
-        console.log("stop!");
+        if(ms.length <= 1) {
+            ms = "0" + ms;
+        }
+        var hm = Math.floor(times % 100).toString();
+        if(hm.length <= 1) {
+            hm = "0"+hm;
+        }
+        $(".seconds").html(ms+".");
+        $(".million_seconds").html(hm);
+        if(!gameFinish){
+            setTimeout(countTimeStart,10);
+        }else{
+            console.log("stop!");
+            console.log($(".seconds").html()+ $(".million_seconds").html());  
+        }
     }
 
     $(".restart_button").click(function(){
@@ -232,7 +226,6 @@ $(function(){
         $("html,body").addClass("ovf_hidden");
     });
 
-    //$(".check_range_available").click(function(){
     $(".restart").on("click",".check_range_available",function(){
         $(".mask_black").show();
         $(".rank_list").show();
